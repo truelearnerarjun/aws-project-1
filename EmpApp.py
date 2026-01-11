@@ -1,10 +1,12 @@
-from flask import Flask, render_template, request
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 from pymysql import connections
 import os
 import boto3
 from config import *
 
 app = Flask(__name__)
+CORS(app)
 
 # DBHOST = os.environ.get("DBHOST")
 # DBPORT = os.environ.get("DBPORT")
@@ -29,11 +31,7 @@ table = 'employee';
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
-    return render_template('AddEmp.html')
-
-@app.route("/about", methods=['POST'])
-def about():
-    return render_template('www.intellipaat.com');
+    return jsonify({"message": "Employee Database API"})
 @app.route("/addemp", methods=['POST'])
 def AddEmp():
     emp_id = request.form['emp_id']
@@ -105,11 +103,15 @@ def AddEmp():
         cursor.close()
 
     print("all modification done...")
-    return render_template('AddEmpOutput.html', name=emp_name)
+    return jsonify({
+        "success": True,
+        "message": "Employee added successfully",
+        "name": emp_name
+    })
 
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
-    return render_template("GetEmp.html")
+    return jsonify({"message": "Ready to fetch employee data"})
 
 
 @app.route("/fetchdata", methods=['GET','POST'])
@@ -144,18 +146,32 @@ def FetchData():
             image_url = response['Item']['image_url']['S']
 
         except Exception as e:
-            program_msg = "Flask could not update DynamoDB table with S3 object URL"
-            return render_template('addemperror.html', errmsg1=program_msg, errmsg2=e)
+            return jsonify({
+                "success": False,
+                "error": "Could not fetch image from DynamoDB",
+                "details": str(e)
+            }), 500
 
     except Exception as e:
         print(e)
+        return jsonify({
+            "success": False,
+            "error": "Employee not found",
+            "details": str(e)
+        }), 404
 
     finally:
         cursor.close()
 
-    return render_template("GetEmpOutput.html", id=output["emp_id"], fname=output["first_name"],
-                           lname=output["last_name"], interest=output["primary_skills"], location=output["location"],
-                           image_url=image_url)
+    return jsonify({
+        "success": True,
+        "id": output["emp_id"],
+        "fname": output["first_name"],
+        "lname": output["last_name"],
+        "interest": output["primary_skills"],
+        "location": output["location"],
+        "image_url": image_url
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=80,debug=True)

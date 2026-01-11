@@ -1,0 +1,120 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+bin/
+include/
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+
+# Environment variables & credentials
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+config.py
+
+# AWS & Security (IMPORTANT - Never commit these!)
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+*.cer
+.aws/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+*.cache
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Frontend build files (in root)
+frontend/build/
+frontend/node_modules/
+frontend/.pnp
+frontend/.pnp.js
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# Temp files
+*.tmp
+*.bak
+*.swp
+*~
+.#*
+
+# Project specific
+templates/  # Old HTML templates (now using React)
+.pytest_cache/
+htmlcov/
+DEPLOYMENT_GUIDE.md  # Deployment guide with sensitive info
+
+# IDEs
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Mac
+.AppleDouble
+.LSOverride
+
+# Windows
+desktop.ini
