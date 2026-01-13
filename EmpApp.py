@@ -121,7 +121,7 @@ def FetchData():
     cursor = db_conn.cursor()
 
     try:
-        cursor.execute(select_sql,(emp_id))
+        cursor.execute(select_sql,(emp_id,))
         result = cursor.fetchone()
 
         output["emp_id"] = result[0]
@@ -131,6 +131,7 @@ def FetchData():
         output["primary_skills"] = result[3]
         output["location"] = result[4]
         print(output["emp_id"])
+        image_url = None
         dynamodb_client = boto3.client('dynamodb', region_name=customregion)
         try:
             response = dynamodb_client.get_item(
@@ -158,4 +159,4 @@ def FetchData():
                            image_url=image_url)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=80,debug=True)
+    app.run(host='0.0.0.0',port=80,debug=os.environ.get('FLASK_DEBUG', False))
