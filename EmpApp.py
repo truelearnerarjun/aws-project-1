@@ -4,7 +4,13 @@ import os
 import boto3
 from config import *
 
-app = Flask(__name__)
+# Get the absolute path to the directory containing this script
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Initialize Flask app with proper static and template paths
+app = Flask(__name__, 
+            static_folder=os.path.join(basedir, 'static'),
+            template_folder=os.path.join(basedir, 'templates'))
 
 # DBHOST = os.environ.get("DBHOST")
 # DBPORT = os.environ.get("DBPORT")

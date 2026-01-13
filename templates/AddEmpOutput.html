@@ -1,23 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<center>
-	<font color="DodgerBlue" size="5" style="font-family: avenir">
-		<body bgcolor="lightgrey">
-			<h1>SAVE SUCCESSFUL</h1><br>
-			<h2>Following Employee has been added to the database</h2><br>
-			<h2>{{ name }}</h2><br>
-			<title>Add Emp Output</title>
-				<form action="http://3.134.115.108:80/" autocomplete="on" method = "GET">
-
-					<button type="submit" style="background: grey; height: 45px; width: 200px; color:white; font:oblique;">GO BACK</button><br><br>
-
-				</form>
-		</body>
-	</font>
-</center>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Added Successfully - Employee Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="light-mode">
+    <header>
+        <div class="navbar">
+            <a href="/" class="brand">
+                <i class="fas fa-building"></i> EmpDB
+            </a>
+            <div class="nav-right">
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
 
+    <div class="container" style="text-align: center;">
+        <div class="breadcrumbs">
+            <span>📊 Dashboard</span> → <span>✓ Success</span>
+        </div>
+
+        <div style="animation: slideUp 0.6s ease;">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1 style="color: #4caf50; font-size: 32px;">Save Successful!</h1>
+            <p class="message" style="margin-bottom: 20px;">Employee has been successfully added to the database</p>
+            
+            <div class="employee-name" style="background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white;">
+                <i class="fas fa-user"></i> {{ name }}
+            </div>
+            
+            <p style="color: #666; margin-top: 20px; font-size: 14px;">
+                <i class="fas fa-check"></i> Profile image uploaded to cloud storage<br>
+                <i class="fas fa-check"></i> Employee record saved to database<br>
+                <i class="fas fa-check"></i> Metadata stored for quick retrieval
+            </p>
+            
+            <div class="button-group" style="justify-content: center; margin-top: 40px;">
+                <button class="btn-submit" onclick="location.href='/' " style="width: auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-user-plus"></i> Add Another Employee
+                </button>
+                <button class="btn-secondary" onclick="location.href='/getemp'" style="width: auto;">
+                    <i class="fas fa-search"></i> Search Employees
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>
