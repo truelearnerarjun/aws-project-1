@@ -144,7 +144,7 @@ def FetchData():
                 TableName='employee_image_table',
                 Key={
                     'empid': {
-                        'N': str(emp_id)
+                        'S': str(emp_id)
                     }
                 }
             )
