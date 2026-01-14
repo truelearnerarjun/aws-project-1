@@ -141,18 +141,20 @@ def FetchData():
         dynamodb_client = boto3.client('dynamodb', region_name=customregion)
         try:
             response = dynamodb_client.get_item(
-                TableName='employee_image_table',
+                TableName=customtable,
                 Key={
                     'empid': {
                         'S': str(emp_id)
                     }
                 }
             )
-            image_url = response['Item']['image_url']['S']
+            if 'Item' in response and 'image_url' in response['Item']:
+                image_url = response['Item']['image_url']['S']
 
         except Exception as e:
-            program_msg = "Flask could not update DynamoDB table with S3 object URL"
-            return render_template('addemperror.html', errmsg1=program_msg, errmsg2=e)
+            # Log the error but continue - employee data should still be shown
+            print(f"Warning: Could not retrieve image URL from DynamoDB: {e}")
+            # image_url remains None, employee data will still be displayed
 
     except Exception as e:
         print(e)
