@@ -302,6 +302,18 @@ button:disabled {
     color: white;
     width: 100%;
     margin-bottom: 12px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
 }
 
 .btn-submit:hover:not(:disabled) {
