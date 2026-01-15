@@ -109,8 +109,10 @@ DESCRIBE employee;
 **Create DynamoDB Table:**
 - Go to AWS DynamoDB Console
 - Create table: `employee_image_table`
-- Partition Key: `empid` (Number)
+- Partition Key: `empid` (String)
 - Configure billing mode (On-demand or Provisioned)
+
+**Important Note**: The `empid` partition key must be **String type** to match the application code implementation. Using Number type will cause validation errors.
 
 **Configure Security Groups:**
 - RDS Security Group: Allow inbound traffic on port 3306 from application server IP

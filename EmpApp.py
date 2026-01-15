@@ -92,7 +92,7 @@ def AddEmp():
                  TableName='emp_image_table',
                     Item={
                      'empid': {
-                          'N': str(emp_id)
+                          'S': str(emp_id)
                       },
                       'image_url': {
                             'S': object_url
@@ -143,23 +143,23 @@ def FetchData():
         image_url = None
         dynamodb_client = boto3.client('dynamodb', region_name=customregion)
         try:
-            # Try Number type first (correct schema)
+            # Try String type first (actual table schema)
             response = dynamodb_client.get_item(
                 TableName=customtable,
                 Key={
                     'empid': {
-                        'N': str(emp_id)
+                        'S': str(emp_id)
                     }
                 }
             )
             
-            # If not found, try String type (legacy data)
+            # If not found, try Number type (in case of mixed data)
             if 'Item' not in response:
                 response = dynamodb_client.get_item(
                     TableName=customtable,
                     Key={
                         'empid': {
-                            'S': str(emp_id)
+                            'N': str(emp_id)
                         }
                     }
                 )
