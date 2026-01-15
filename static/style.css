@@ -310,6 +310,164 @@ input:invalid:not(:placeholder-shown) ~ .error-message {
     border: 1px solid #ffe0b2;
 }
 
+/* Enhanced Error Card */
+.error-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin: 40px 0;
+    overflow: hidden;
+    animation: slideIn 0.5s ease;
+    display: flex;
+    align-items: stretch;
+    min-height: 300px;
+}
+
+.error-icon {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    font-size: 48px;
+    flex: 0 0 120px;
+}
+
+.error-content {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.error-content h2 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.error-message {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.error-details {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #856404;
+    font-size: 14px;
+}
+
+.suggestions {
+    background: #e7f3ff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.suggestions h3 {
+    color: #0066cc;
+    margin-bottom: 15px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suggestions ul {
+    list-style: none;
+    padding: 0;
+}
+
+.suggestions li {
+    padding: 8px 0;
+    color: #004085;
+    position: relative;
+    padding-left: 25px;
+    font-size: 14px;
+}
+
+.suggestions li:before {
+    content: "•";
+    position: absolute;
+    left: 8px;
+    color: #0066cc;
+    font-weight: bold;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .btn-submit,
+.action-buttons .btn-secondary {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    min-width: 160px;
+    justify-content: center;
+}
+
+.action-buttons .btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.action-buttons .btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+}
+
+/* Dark mode support for error card */
+body.dark-mode .error-card {
+    background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+}
+
+body.dark-mode .error-content h2 {
+    color: #e2e8f0;
+}
+
+body.dark-mode .error-message {
+    color: #cbd5e0;
+}
+
+body.dark-mode .suggestions {
+    background: #2b6cb0;
+    color: #e2e8f0;
+}
+
+body.dark-mode .suggestions h3 {
+    color: #bee3f8;
+}
+
+body.dark-mode .suggestions li {
+    color: #e2e8f0;
+}
+
+body.dark-mode .suggestions li:before {
+    color: #bee3f8;
+}
+
 /* Buttons */
 button {
     padding: 12px 24px;
