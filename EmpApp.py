@@ -39,7 +39,7 @@ def home():
 
 @app.route("/about", methods=['POST'])
 def about():
-    return render_template('www.intellipaat.com');
+    return "<h1>About Employee Management System</h1><p>This is a comprehensive employee management application built with Flask, MySQL, and AWS services.</p>"
 @app.route("/addemp", methods=['POST'])
 def AddEmp():
     emp_id = request.form['emp_id']
@@ -95,9 +95,9 @@ def AddEmp():
         
             
             try:
-                dynamodb_client = boto3.client('dynamodb', region_name='us-east-2')
+                dynamodb_client = boto3.client('dynamodb', region_name=customregion)
                 dynamodb_client.put_item(
-                 TableName='emp_image_table',
+                 TableName=customtable,
                     Item={
                      'empid': {
                           'S': str(emp_id)
