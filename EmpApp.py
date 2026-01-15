@@ -45,7 +45,7 @@ def AddEmp():
     emp_id = request.form['emp_id']
     first_name = request.form['first_name']
     last_name = request.form['last_name']
-    pri_skill = request.form['pri_skill']
+    primary_skills = request.form['primary_skills']
     location = request.form['location']
     emp_image_file = request.files['emp_image_file']
   
@@ -65,7 +65,7 @@ def AddEmp():
         if emp_image_file.filename == "":
             return render_template('AddEmp.html', error=True, error_message="Please select a profile image.")
 
-        cursor.execute(insert_sql,(emp_id, first_name, last_name, pri_skill, location))
+        cursor.execute(insert_sql,(emp_id, first_name, last_name, primary_skills, location))
         db_conn.commit()
         emp_name = "" + first_name + " " + last_name
         # Uplaod image file in S3 #
@@ -134,7 +134,7 @@ def FetchData():
     emp_id = request.form['emp_id']
 
     output = {}
-    select_sql = "SELECT emp_id, first_name, last_name, pri_skill, location from employee where emp_id=%s"
+    select_sql = "SELECT emp_id, first_name, last_name, primary_skills, location from employee where emp_id=%s"
     cursor = db_conn.cursor()
 
     try:
