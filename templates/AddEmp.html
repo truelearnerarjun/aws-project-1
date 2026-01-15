@@ -41,8 +41,9 @@
                     <span class="icon"><i class="fas fa-id-card"></i></span>
                     Employee ID
                 </label>
-                <input type="number" id="emp_id" name="emp_id" required autofocus placeholder="Enter employee ID" min="1">
+                <input type="number" id="emp_id" name="emp_id" required autofocus placeholder="Enter employee ID" min="1" onblur="checkEmployeeId()">
                 <span class="error-message">Please enter a valid employee ID</span>
+                <div id="empIdStatus" class="emp-id-status"></div>
             </div>
             
             <div class="form-group">
@@ -108,6 +109,56 @@
 
     <script src="{{ url_for('static', filename='app.js') }}"></script>
     <script>
+        let empIdExists = false;
+        
+        function checkEmployeeId() {
+            const empId = document.getElementById('emp_id').value;
+            const statusDiv = document.getElementById('empIdStatus');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            
+            if (!empId) {
+                statusDiv.innerHTML = '';
+                empIdExists = false;
+                submitBtn.disabled = false;
+                return;
+            }
+            
+            // Show loading state
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            statusDiv.className = 'emp-id-status checking';
+            
+            // Create form data
+            const formData = new FormData();
+            formData.append('emp_id', empId);
+            
+            // Send AJAX request
+            fetch('/check-emp-id', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+                    statusDiv.className = 'emp-id-status error';
+                    empIdExists = true;
+                    submitBtn.disabled = true;
+                } else {
+                    statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                    statusDiv.className = 'emp-id-status success';
+                    empIdExists = false;
+                    submitBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error checking employee ID:', error);
+                statusDiv.innerHTML = '<i class="fas fa-question-circle"></i> Unable to verify employee ID';
+                statusDiv.className = 'emp-id-status warning';
+                empIdExists = false;
+                submitBtn.disabled = false;
+            });
+        }
+        
         function previewImage(event) {
             const file = event.target.files[0];
             const preview = document.getElementById('preview');
@@ -122,6 +173,15 @@
                 preview.innerHTML = '';
             }
         }
+        
+        // Prevent form submission if employee ID exists
+        document.getElementById('addEmpForm').addEventListener('submit', function(e) {
+            if (empIdExists) {
+                e.preventDefault();
+                alert('Please choose a different Employee ID. The current ID already exists.');
+                document.getElementById('emp_id').focus();
+            }
+        });
     </script>
 </body>
 </html>

@@ -174,6 +174,29 @@ def health_check():
         'errors': status['errors']
     }
 
+@app.route("/check-emp-id", methods=['POST'])
+def check_emp_id():
+    """Check if employee ID already exists"""
+    try:
+        emp_id = request.form.get('emp_id', '')
+        
+        if not emp_id:
+            return {'exists': False, 'message': 'Employee ID is required'}
+        
+        cursor = db_conn.cursor()
+        cursor.execute("SELECT emp_id FROM employee WHERE emp_id = %s", (emp_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        
+        if result:
+            return {'exists': True, 'message': f'Employee ID {emp_id} already exists'}
+        else:
+            return {'exists': False, 'message': 'Employee ID is available'}
+            
+    except Exception as e:
+        print(f"Error checking employee ID: {e}")
+        return {'exists': False, 'message': 'Error checking employee ID'}
+
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
     return render_template("GetEmp.html")
