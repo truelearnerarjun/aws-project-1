@@ -92,7 +92,7 @@ def AddEmp():
                  TableName='emp_image_table',
                     Item={
                      'empid': {
-                          'S': emp_id
+                          'N': str(emp_id)
                       },
                       'image_url': {
                             'S': object_url
@@ -130,6 +130,9 @@ def FetchData():
         cursor.execute(select_sql,(emp_id,))
         result = cursor.fetchone()
 
+        if result is None:
+            return render_template("GetEmpOutput.html", error=True, emp_id=emp_id)
+
         output["emp_id"] = result[0]
         print('EVERYTHING IS FINE TILL HERE')
         output["first_name"] = result[1]
@@ -140,14 +143,27 @@ def FetchData():
         image_url = None
         dynamodb_client = boto3.client('dynamodb', region_name=customregion)
         try:
+            # Try Number type first (correct schema)
             response = dynamodb_client.get_item(
                 TableName=customtable,
                 Key={
                     'empid': {
-                        'S': str(emp_id)
+                        'N': str(emp_id)
                     }
                 }
             )
+            
+            # If not found, try String type (legacy data)
+            if 'Item' not in response:
+                response = dynamodb_client.get_item(
+                    TableName=customtable,
+                    Key={
+                        'empid': {
+                            'S': str(emp_id)
+                        }
+                    }
+                )
+            
             if 'Item' in response and 'image_url' in response['Item']:
                 image_url = response['Item']['image_url']['S']
 
@@ -158,6 +174,7 @@ def FetchData():
 
     except Exception as e:
         print(e)
+        return render_template("GetEmpOutput.html", error=True, emp_id=emp_id, error_message=str(e))
 
     finally:
         cursor.close()
