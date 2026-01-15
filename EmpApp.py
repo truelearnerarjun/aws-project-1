@@ -124,6 +124,56 @@ def AddEmp():
     print("all modification done...")
     return render_template('AddEmpOutput.html', name=emp_name)
 
+@app.route("/health", methods=['GET'])
+def health_check():
+    """Health check endpoint to diagnose connection issues"""
+    status = {
+        'database': False,
+        's3': False,
+        'dynamodb': False,
+        'aws_credentials': False,
+        'errors': []
+    }
+    
+    # Test database
+    try:
+        cursor = db_conn.cursor()
+        cursor.execute("SELECT 1")
+        cursor.close()
+        status['database'] = True
+    except Exception as e:
+        status['errors'].append(f"Database: {str(e)}")
+    
+    # Test AWS credentials
+    try:
+        sts_client = boto3.client('sts')
+        sts_client.get_caller_identity()
+        status['aws_credentials'] = True
+    except Exception as e:
+        status['errors'].append(f"AWS Credentials: {str(e)}")
+    
+    # Test S3
+    try:
+        s3_client = boto3.client('s3')
+        s3_client.head_bucket(Bucket=custombucket)
+        status['s3'] = True
+    except Exception as e:
+        status['errors'].append(f"S3: {str(e)}")
+    
+    # Test DynamoDB
+    try:
+        dynamodb = boto3.client('dynamodb', region_name=customregion)
+        dynamodb.describe_table(TableName=customtable)
+        status['dynamodb'] = True
+    except Exception as e:
+        status['errors'].append(f"DynamoDB: {str(e)}")
+    
+    return {
+        'status': 'healthy' if all(status.values()) else 'unhealthy',
+        'services': status,
+        'errors': status['errors']
+    }
+
 @app.route("/getemp", methods=['GET', 'POST'])
 def GetEmp():
     return render_template("GetEmp.html")
@@ -131,29 +181,51 @@ def GetEmp():
 
 @app.route("/fetchdata", methods=['GET','POST'])
 def FetchData():
-    emp_id = request.form['emp_id']
+    emp_id = request.form.get('emp_id', '')
+    print(f"Searching for employee ID: {emp_id}")
 
     output = {}
-    select_sql = "SELECT emp_id, first_name, last_name, primary_skills, location from employee where emp_id=%s"
-    cursor = db_conn.cursor()
-
+    image_url = None
+    cursor = None
+    
     try:
-        cursor.execute(select_sql,(emp_id,))
-        result = cursor.fetchone()
-
-        if result is None:
-            return render_template("GetEmpOutput.html", error=True, emp_id=emp_id)
-
-        output["emp_id"] = result[0]
-        print('EVERYTHING IS FINE TILL HERE')
-        output["first_name"] = result[1]
-        output["last_name"] = result[2]
-        output["primary_skills"] = result[3]
-        output["location"] = result[4]
-        print(output["emp_id"])
-        image_url = None
-        dynamodb_client = boto3.client('dynamodb', region_name=customregion)
+        select_sql = "SELECT emp_id, first_name, last_name, primary_skills, location from employee where emp_id=%s"
+        
+        # Test database connection
         try:
+            cursor = db_conn.cursor()
+            print("Database cursor created successfully")
+        except Exception as db_error:
+            print(f"Database connection error: {db_error}")
+            return render_template("GetEmpOutput.html", error=True, emp_id=emp_id, 
+                                 error_message=f"Database connection failed: {str(db_error)}")
+
+        try:
+            cursor.execute(select_sql,(emp_id,))
+            result = cursor.fetchone()
+            print(f"Query executed, result: {result}")
+
+            if result is None:
+                print(f"No employee found with ID: {emp_id}")
+                return render_template("GetEmpOutput.html", error=True, emp_id=emp_id)
+
+            output["emp_id"] = result[0]
+            output["first_name"] = result[1]
+            output["last_name"] = result[2]
+            output["primary_skills"] = result[3]
+            output["location"] = result[4]
+            print(f"Employee data retrieved: {output}")
+            
+        except Exception as query_error:
+            print(f"Database query error: {query_error}")
+            return render_template("GetEmpOutput.html", error=True, emp_id=emp_id, 
+                                 error_message=f"Database query failed: {str(query_error)}")
+
+        # Try to get image URL from DynamoDB
+        try:
+            print("Attempting to retrieve image URL from DynamoDB...")
+            dynamodb_client = boto3.client('dynamodb', region_name=customregion)
+            
             # Try String type first (actual table schema)
             response = dynamodb_client.get_item(
                 TableName=customtable,
@@ -177,19 +249,31 @@ def FetchData():
             
             if 'Item' in response and 'image_url' in response['Item']:
                 image_url = response['Item']['image_url']['S']
+                print(f"Image URL retrieved: {image_url}")
+            else:
+                print("No image URL found in DynamoDB")
 
-        except Exception as e:
+        except Exception as dynamodb_error:
             # Log the error but continue - employee data should still be shown
-            print(f"Warning: Could not retrieve image URL from DynamoDB: {e}")
+            print(f"Warning: Could not retrieve image URL from DynamoDB: {dynamodb_error}")
             # image_url remains None, employee data will still be displayed
 
     except Exception as e:
-        print(e)
-        return render_template("GetEmpOutput.html", error=True, emp_id=emp_id, error_message=str(e))
+        print(f"General error in FetchData: {e}")
+        import traceback
+        traceback.print_exc()
+        return render_template("GetEmpOutput.html", error=True, emp_id=emp_id, 
+                             error_message=f"Server error: {str(e)}")
 
     finally:
-        cursor.close()
+        try:
+            if cursor:
+                cursor.close()
+                print("Database cursor closed")
+        except Exception as cursor_error:
+            print(f"Error closing cursor: {cursor_error}")
 
+    print("Successfully rendering GetEmpOutput.html")
     return render_template("GetEmpOutput.html", id=output["emp_id"], fname=output["first_name"],
                            lname=output["last_name"], interest=output["primary_skills"], location=output["location"],
                            image_url=image_url)
