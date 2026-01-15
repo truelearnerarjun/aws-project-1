@@ -49,14 +49,22 @@ def AddEmp():
     location = request.form['location']
     emp_image_file = request.files['emp_image_file']
   
-    insert_sql = "INSERT INTO employee VALUES (%s, %s, %s, %s, %s)"
+    # Check if employee ID already exists
+    check_sql = "SELECT emp_id FROM employee WHERE emp_id = %s"
     cursor = db_conn.cursor()
-
-    if emp_image_file.filename == "":
-        return "Please select a file"
-
+    
     try:
+        cursor.execute(check_sql, (emp_id,))
+        existing_emp = cursor.fetchone()
         
+        if existing_emp:
+            return render_template('AddEmp.html', error=True, error_message=f"Employee ID {emp_id} already exists. Please use a different ID.")
+        
+        insert_sql = "INSERT INTO employee VALUES (%s, %s, %s, %s, %s)"
+        
+        if emp_image_file.filename == "":
+            return render_template('AddEmp.html', error=True, error_message="Please select a profile image.")
+
         cursor.execute(insert_sql,(emp_id, first_name, last_name, pri_skill, location))
         db_conn.commit()
         emp_name = "" + first_name + " " + last_name
@@ -106,6 +114,9 @@ def AddEmp():
         
         except Exception as e:
             return str(e)
+
+    except Exception as e:
+        return str(e)
 
     finally:
         cursor.close()
