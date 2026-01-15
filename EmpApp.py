@@ -92,7 +92,7 @@ def AddEmp():
                  TableName='emp_image_table',
                     Item={
                      'empid': {
-                          'N': emp_id
+                          'S': emp_id
                       },
                       'image_url': {
                             'S': object_url
