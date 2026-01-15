@@ -85,9 +85,9 @@ def AddEmp():
             else:
                 s3_location = '-' + s3_location
 
-            object_url = "https://s3{0}.amazonaws.com/{1}/{2}".format(
-                s3_location,
+            object_url = "https://{0}.s3{1}.amazonaws.com/{2}".format(
                 custombucket,
+                s3_location,
                 emp_image_file_name_in_s3)
 
             # Save image file metadata in DynamoDB #
