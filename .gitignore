@@ -3,6 +3,7 @@
 .env.local
 .env.*.local
 
+
 # Python
 __pycache__/
 *.py[cod]
@@ -41,6 +42,7 @@ wheels/
 
 # Security & Sensitive Files
 config.py
+DEPLOYMENT_GUIDE.md
 *.pem
 *.key
 *.crt
