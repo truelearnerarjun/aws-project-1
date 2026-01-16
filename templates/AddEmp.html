@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Employee - Employee Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="light-mode">
+    <header>
+        <div class="navbar">
+            <a href="/" class="brand">
+                <i class="fas fa-building"></i> EmpDB
+            </a>
+            <div class="nav-right">
+                <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+                
+        <h1><i class="fas fa-user-plus"></i> Add Employee</h1>
+        <p class="subtitle">Fill in the details below to add a new employee</p>
+        
+        {% if error %}
+        <div class="error-card" style="background: #ffebee; border-left: 5px solid #f44336; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="color: #f44336; margin-bottom: 8px; font-size: 16px;">
+                <i class="fas fa-exclamation-triangle"></i> Error
+            </h3>
+            <p style="color: #666; margin: 0; font-size: 14px;">{{ error_message }}</p>
+        </div>
+        {% endif %}
+        
+        <form action="/addemp" method="POST" enctype="multipart/form-data" id="addEmpForm">
+            <div class="form-group">
+                <label for="emp_id">
+                    <span class="icon"><i class="fas fa-id-card"></i></span>
+                    Employee ID
+                </label>
+                <input type="number" id="emp_id" name="emp_id" required autofocus placeholder="Enter employee ID" min="1" oninput="checkEmployeeId()">
+                <span class="error-message">Please enter a valid employee ID</span>
+                <div id="empIdStatus" class="emp-id-status"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="first_name">
+                    <span class="icon"><i class="fas fa-user"></i></span>
+                    First Name
+                </label>
+                <input type="text" id="first_name" name="first_name" required placeholder="Enter first name" pattern="[A-Za-z\s]+" title="First name should only contain letters">
+                <span class="error-message">First name is required and should contain only letters</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="last_name">
+                    <span class="icon"><i class="fas fa-user"></i></span>
+                    Last Name
+                </label>
+                <input type="text" id="last_name" name="last_name" required placeholder="Enter last name" pattern="[A-Za-z\s]+" title="Last name should only contain letters">
+                <span class="error-message">Last name is required and should contain only letters</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="primary_skills">
+                    <span class="icon"><i class="fas fa-star"></i></span>
+                    Primary Skills
+                </label>
+                <input type="text" id="primary_skills" name="primary_skills" required placeholder="e.g., Python, Java, AWS" title="Enter your primary skills">
+                <span class="error-message">Primary skills are required</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">
+                    <span class="icon"><i class="fas fa-map-marker-alt"></i></span>
+                    Location
+                </label>
+                <input type="text" id="location" name="location" required placeholder="Enter city/location">
+                <span class="error-message">Location is required</span>
+            </div>
+            
+            <div class="form-group">
+                <label for="emp_image_file">
+                    <span class="icon"><i class="fas fa-image"></i></span>
+                    Profile Image
+                </label>
+                <input type="file" id="emp_image_file" name="emp_image_file" required accept="image/*" onchange="previewImage(event)">
+                <span class="error-message">Profile image is required (JPEG, PNG, WebP)</span>
+                <div id="preview" class="image-preview"></div>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i> Save Employee
+                </button>
+                <a href="/getemp" class="btn-submit">
+                    <i class="fas fa-search"></i> View Employees
+                </a>
+            </div>
+        </form>
+        
+        <a href="/about" class="about-link">
+            <i class="fas fa-info-circle"></i> About Us
+        </a>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <script>
+        let empIdExists = false;
+        let checkTimeout;
+        
+        function checkEmployeeId() {
+            const empId = document.getElementById('emp_id').value;
+            const statusDiv = document.getElementById('empIdStatus');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            
+            // Clear previous timeout
+            clearTimeout(checkTimeout);
+            
+            if (!empId) {
+                statusDiv.innerHTML = '';
+                empIdExists = false;
+                submitBtn.disabled = false;
+                return;
+            }
+            
+            // Show loading state
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
+            statusDiv.className = 'emp-id-status checking';
+            
+            // Debounce - wait 500ms after user stops typing
+            checkTimeout = setTimeout(() => {
+                // Create form data
+                const formData = new FormData();
+                formData.append('emp_id', empId);
+                
+                // Send AJAX request
+                fetch('/check-emp-id', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        statusDiv.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+                        statusDiv.className = 'emp-id-status error';
+                        empIdExists = true;
+                        submitBtn.disabled = true;
+                    } else {
+                        statusDiv.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                        statusDiv.className = 'emp-id-status success';
+                        empIdExists = false;
+                        submitBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking employee ID:', error);
+                    statusDiv.innerHTML = '<i class="fas fa-question-circle"></i> Unable to verify employee ID';
+                    statusDiv.className = 'emp-id-status warning';
+                    empIdExists = false;
+                    submitBtn.disabled = false;
+                });
+            }, 500);
+        }
+        
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('preview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+        
+        // Prevent form submission if employee ID exists
+        document.getElementById('addEmpForm').addEventListener('submit', function(e) {
+            if (empIdExists) {
+                e.preventDefault();
+                alert('Please choose a different Employee ID. The current ID already exists.');
+                document.getElementById('emp_id').focus();
+            }
+        });
+    </script>
+</body>
+</html>
